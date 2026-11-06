@@ -15,7 +15,7 @@ class Resource{
         this.usedCpu = 0;
         this.usedMem = 0;
     }
-    public boolean canAllocate(int cpu, int mem, int totalMem, int totalCpu) {
+    public boolean canAllocate(int cpu, int mem) {
         if ( cpu + usedCpu <= totalCpu && mem +usedMem <= totalMem) {
             return true;
 
@@ -53,20 +53,20 @@ class Main {
 
 
 
+
+
+
         List<Job> jobs = Arrays.asList(
                 new Job("J1", 2, 4),
                 new Job("J2", 4, 8),
-                new Job("J3", 6, 6),
-                new Job("J4", 1, 2),
-                new Job("J5", 3, 6),
-                new Job("J6", 5, 8)
-        );
+                new Job("J1", 8, 16),
+                new Job("J2", 16, 24)
+                );
 
         List<String> resourceKeys = new ArrayList<>(resources.keySet());
         int currentIdx = 0;
 
 
-        System.out.println("--- Round Robin Assignment (Java) ---");
         for (Job job : jobs) {
             boolean assigned = false;
             int attempts = 0;
@@ -74,8 +74,9 @@ class Main {
             while (attempts < resourceKeys.size()) {
                 String resourceKey = resourceKeys.get(currentIdx);
                 Resource resource = resources.get(resourceKey);
-                if (resource.canAllocate(job.cpu, job.mem, resource.totalMem, resource.totalCpu)) {
-                    System.out.println("Job " + job.id + " assigned to " + resource.name);
+                if (resource.canAllocate(job.cpu, job.mem)) {
+                    resource.Allocate(job.cpu, job.mem);
+                    System.out.println("Job " + job.id + " (CPU:" + job.cpu + ", Mem:" + job.mem + ") assigned to " + resource.name);
                     currentIdx = (currentIdx + 1) % resourceKeys.size();
                     assigned = true;
                     System.out.println("Trying next resource...");
@@ -91,8 +92,18 @@ class Main {
                 }
 
             }
+
+
+            if (!assigned) {
+                System.out.println("Job " + job.id + " could not be assigned: Insufficient resources cluster-wide.");
+            }
+
+            }
+        System.out.println("\nFinal Resource States:");
+        for (Resource r : resources.values()) {
+            System.out.println(r);
+        }
+
         }
 
     }
-
-}
